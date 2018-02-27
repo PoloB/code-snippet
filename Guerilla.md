@@ -641,3 +641,36 @@ def create_render_graph():
 
     return rg
 ```
+
+## Get if a RenderGraphNode is connected to the output of a RenderGraph
+
+The following function returns True if the given RenderGraphNode is connected to the output of its RenderGraph.
+
+![Guerilla connected rendergraph output](img/guerilla/guerilla_connected_rendergraph_output.png)
+
+```python
+def is_connected_to_rendergraph_output(rendergraph_node):
+    """Returns True if the given RenderGraphNode is connected
+    to the output of the render graph."""
+
+    if getclassname(rendergraph_node) == "RenderGraphNodeOutput":
+        return True
+        
+    elif getclassname(rendergraph_node) == "RenderGraphMacroOutput":
+        # Give the rendergraph macro itself
+        outplug = rendergraph_node.getparent().Output1.Plug
+        
+    else:
+        outplug = rendergraph_node.Output1.Plug
+
+    while outplug.hasoutputs():
+
+        if outplug.hasoutputs():
+            # Continue checking outputs
+            
+            for c in outplug.connections(False, True):
+                return is_connected_to_rendergraph_output(c.getnode().getparent())
+                
+        else:
+            return False
+```
