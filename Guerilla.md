@@ -649,28 +649,27 @@ The following function returns True if the given RenderGraphNode is connected to
 ![Guerilla connected rendergraph output](img/guerilla/guerilla_connected_rendergraph_output.png)
 
 ```python
-def is_connected_to_rendergraph_output(rendergraph_node):
+def is_connected_to_rendergraph_output(node):
     """Returns True if the given RenderGraphNode is connected
-    to the output of the render graph."""
+    to an output of the render graph."""
 
-    if getclassname(rendergraph_node) == "RenderGraphNodeOutput":
+    if getclassname(node) == "RenderGraphNodeOutput":
+        # It's connected
         return True
-        
-    elif getclassname(rendergraph_node) == "RenderGraphMacroOutput":
+
+    elif getclassname(node) == "RenderGraphMacroOutput":
         # Give the rendergraph macro itself
-        outplug = rendergraph_node.getparent().Output1.Plug
-        
+        outplugs = node.getparent().getoutputs()
+
     else:
-        outplug = rendergraph_node.Output1.Plug
+        # We will test all the output plugs of the node
+        outplugs = node.getoutputs()
 
-    while outplug.hasoutputs():
+    for outplug in outplugs:
+        for c in outplug.Plug.connections(False, True):
+            # We recursively check if the connected nodes flow to the output
+            return is_connected_to_rendergraph_output(c.getnode().getparent())
 
-        if outplug.hasoutputs():
-            # Continue checking outputs
-            
-            for c in outplug.connections(False, True):
-                return is_connected_to_rendergraph_output(c.getnode().getparent())
-                
-        else:
-            return False
+        # We found no connection, let's return
+        return False
 ```
