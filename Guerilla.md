@@ -670,6 +670,6 @@ def is_connected_to_rendergraph_output(node):
             # We recursively check if the connected nodes flow to the output
             return is_connected_to_rendergraph_output(c.getnode().getparent())
 
-        # We found no connection, let's return
-        return False
+    # We found no connection, let's return
+    return False
 ```
